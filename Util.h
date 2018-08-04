@@ -2,12 +2,16 @@
 #define __Util_H__
 
 #include <set>
+#include <map>
+#include <queue>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
+#include <cmath>
+#include <algorithm>
 
 #define _DEBUG 1
 

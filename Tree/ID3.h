@@ -16,13 +16,14 @@ typedef struct Condition {
 
 typedef struct Node {
     vector<int32_t> sampleIndexs;
+    vector<int32_t> featureIndexs;
     vector<int32_t> labelCnts;  // [5, 6, 1]
     int32_t index; //节点序号
     int32_t depth; //深度
     int32_t H; //熵值
     Condition condition; //节点分类条件
     vector<struct Node*> childs; //字节点
-} Node;
+} *Node;
 
 //连续值离散化  //二分法取中间值
 
@@ -31,12 +32,10 @@ class ID3 {
         vector<vector<float> > _samples;
         vector<int32_t> _labels;
         vector<int32_t> _types;
-        int32_t _featureIndex; //当前分类选择的特征
-        float _featureVal; //当前分类选择的特征值
         int32_t _featureCnt;
         int32_t _sampleCnt;
         int32_t _labelCnt;
-        Node* root;
+        Node _root;
     public:
         ID3() {}
 
@@ -47,13 +46,22 @@ class ID3 {
         
         void setData(vector<vector<float> > &samples, vector<int32_t> &labels);
 
-        //信息增益
-        void setSplitFeatureAndValue();
+        void setType(int index, int type);
 
+        //信息增益
+        float setSplitFeatureAndValue(Node node, int &featureIndex, float &bestSplitVal);
+        float getOneNodeEntrop(map<int32_t, int32_t> labelCnts, int32_t valueCnt);
         //关键的一个步骤
-        void getGiniVal();
+        float getGiniVal(float p) {
+            return -1.0 *  p * log(p);
+        }
+
+        float getDiscretFeatureEntrop(vector<int32_t> sampleIndexs, int featurej);
+        float getContinuousFeatureEntrop(vector<int32_t> sampleIndexs, int featurej, float &splitval);
 
         void buildTree();
+
+        void splitData();
 
         //1. 分析
         void training();
@@ -61,3 +69,4 @@ class ID3 {
         void predict(vector<float> sample);
 };
 #endif
+
