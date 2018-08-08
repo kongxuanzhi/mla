@@ -3,6 +3,7 @@
 
 void ID3::setData(vector<vector<float> > &samples, vector<int32_t> &labels)
 {
+    cout <<  "set" << endl;
     this->_samples = samples;
     this->_labels = labels;
     this->_sampleCnt = this->_samples.size();
@@ -63,8 +64,8 @@ map<float, map<int32_t, int32_t> > ID3::getDiscretFeatureEntrop(vector<int32_t> 
         float value = this->_samples[*it][featurej];
         int32_t label = this->_labels[*it];
         //每个值对应的label的个数
-        valLabelCnt[value][label] != NULL ? valLabelCnt[value][label]++ : valLabelCnt[value][label] = 1;
-        valCnts[value] != NULL ? valCnts[value]++ : valCnts[value] = 1;
+        valLabelCnt[value][label]++;
+        valCnts[value]++;
     }
 
     entrop = 0.0;
@@ -97,9 +98,9 @@ float ID3::getContinuousFeatureEntrop(vector<int32_t> sampleIndexs, int featurej
         for (vector<int32_t>::iterator it = sampleIndexs.begin(); it != sampleIndexs.end(); it++) {
             float featureJValue = this->_samples[*it][featurej];
             if (midVal <= featureJValue) {
-                leftLabelCnts[this->_labels[*it]] != NULL ? leftLabelCnts[this->_labels[*it]] ++ : leftLabelCnts[this->_labels[*it]] = 0;
+                leftLabelCnts[this->_labels[*it]] ++;
             } else {
-                rightLabelCnts[this->_labels[*it]] != NULL ? rightLabelCnts[this->_labels[*it]] ++ : rightLabelCnts[this->_labels[*it]] = 0;
+                rightLabelCnts[this->_labels[*it]] ++;
             }
         }
 
@@ -142,7 +143,7 @@ float ID3::getNodeEntrop(Node node)
     map<int32_t, int32_t> labelCnts;
 
     for (vector<int32_t>::iterator it = node->sampleIndexs.begin(); it != node->sampleIndexs.end(); it++) {
-        labelCnts[this->_labels[*it]] != NULL ? labelCnts[this->_labels[*it]] ++ : labelCnts[this->_labels[*it]] = 0;
+        labelCnts[this->_labels[*it]] ++;
     }
 
     return this->getLabelMapEntrop(labelCnts,  node->sampleIndexs.size());
@@ -155,6 +156,7 @@ Node ID3::buildTree()
     float bestSplitVal = -1.0;
     queue<Node> tree;
     tree.push(this->_root);
+    cout << this->root << "fcdf" << endl;
     while(!tree.empty()) {
         Node node = tree.front();
         tree.pop();
@@ -235,7 +237,7 @@ int32_t ID3::predict(vector<float> sample) {
            if (this->_samples[child->sampleIndexs[0]][featurej] == value) {
                 map<int32_t, int32_t> labelCnts;
                 for (vector<int32_t>::iterator it = child->sampleIndexs.begin(); it != child->sampleIndexs.end(); it++) {
-                    labelCnts[this->_labels[*it]] != NULL ? labelCnts[this->_labels[*it]]++ : labelCnts[this->_labels[*it]] = 1;
+                    labelCnts[this->_labels[*it]]++;
                 }
 
                 int32_t maxLabelCnt = INT_MIN;

@@ -1,8 +1,9 @@
 #include "../Util.h"
-#include "ID3.h"
+#include "ID3.cpp"
 
 void dfsNode(Node node)
 {
+    cout << "start" << endl;
     if (node->childs.size() == 0) return;
     cout << "node-index :" << node->index << endl;
     cout << "depth :" << node->depth << endl;

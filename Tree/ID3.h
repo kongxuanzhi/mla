@@ -42,30 +42,30 @@ class ID3 {
         //2. 后剪枝： 在构造完决策树后，然后开始剪枝
         // ID3(int32_t maxNodeN, int32_t maxDepth) {}
         
-        void setData(vector<vector<float> > &samples, vector<int32_t> &labels) {}
+        void setData(vector<vector<float> > &samples, vector<int32_t> &labels);
 
-        void setType(int index, int type) {}
+        void setType(int index, int type);
 
         //信息增益
-        float getBestSplitFeatureIndex(Node node, int &featureIndex) {}
-        float getLabelMapEntrop(map<int32_t, int32_t> labelCnts, int32_t valueCnt) {}
-        float getNodeEntrop(Node node) {}
+        float getBestSplitFeatureIndex(Node node, int &featureIndex);
+        float getLabelMapEntrop(map<int32_t, int32_t> labelCnts, int32_t valueCnt);
+        float getNodeEntrop(Node node);
         //关键的一个步骤
-        float getGiniVal(float p) {
+        virtual float getGiniVal(float p) {
             return -1.0 *  p * log(p);
         }
 
-        map<float, map<int32_t, int32_t> >  getDiscretFeatureEntrop(vector<int32_t> sampleIndexs, int featurej, float &entrop) {}
-        float getContinuousFeatureEntrop(vector<int32_t> sampleIndexs, int featurej, float &entrop) {}
+        map<float, map<int32_t, int32_t> >  getDiscretFeatureEntrop(vector<int32_t> sampleIndexs, int featurej, float &entrop);
+        float getContinuousFeatureEntrop(vector<int32_t> sampleIndexs, int featurej, float &entrop);
 
-        Node buildTree() {}
+        Node buildTree();
 
-        int buildChildNodes(Node node, int index) {}
+        int buildChildNodes(Node node, int index);
 
         //1. 分析
-        void training() {}
+        void training();
 
-        int32_t predict(vector<float> sample) {}
+        int32_t predict(vector<float> sample);
 };
 #endif
 
