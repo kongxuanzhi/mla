@@ -23,14 +23,13 @@ city_com = grouped_pct.agg(['mean', 'count'])
 city_com.reset_index(inplace=True)
 city_com['mean'] = round(city_com['mean'], 2)
 data = [(city_com['city'][i], city_com['count'][i]) for i in range(0, city_com.shape[0])]
-geo = Geo('《爱情公寓》全国热力图', title_color="#fff",title_pos="center", width=1200, height=600, background_color='#404a59')
+geo = Geo('《爱情公寓》全国热力图', title_color="#fff", title_pos="center", width=1200, height=600, background_color='#404a59')
 attr, value = geo.cast(data)
 geo.add("", attr, value, type="heatmap",  is_visualmap=True, visual_range=[0, 20],visual_text_color="#fff")
 geo.render('爱情公寓全国观影图.html')
 
 # 主要城市评分and评论数
-
-city_main = city_com.sort_values('count',ascending=False)[0:20]
+city_main = city_com.sort_values('count', ascending=False)[0:20]
 attr = city_main['city']
 v1 = city_main['count']
 v2 = city_main['mean']
