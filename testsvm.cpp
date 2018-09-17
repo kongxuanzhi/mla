@@ -7,7 +7,7 @@ int main(int argv, char* argc[]) {
 		std::cout << "Usage: ./svm [training_file] [c] [max_iter_cnt]" << std::endl;
 		return 0;
 	}
-
+	// ./Bin/svm DATA/testSet.txt 0.1 500
 	std::ifstream fis(argc[1]);
 	std::string line;
 	std::vector<int32_t> vctLabel;

@@ -4,6 +4,7 @@
 int main(int argv, char* argc[]) {
     std::cout << "Testing Regression Tree" << std::endl;
     std::cout << "Loading the tree" << std::endl;
+	// ./Bin/reg_tree DATA/data 20 200 0
     if (argv < 5) {
         std::cout << "Usage: ./test_tree [training_file] [max_depth] [max_node_path] [multi thread or not]" << std::endl;
         return 0;

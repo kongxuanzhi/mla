@@ -4,7 +4,7 @@
 int main(int argv, char* argc[]) {
 
 	mla::lr::LR *lr = new mla::lr::LR();
-
+	//  ./Bin/lr DATA/ionosphere 0.05 500 2 0 2 0.2
 	if (argv < 3) {
 		std::cout << "Usage: ./LR [training data] [learning_rate] [max iter cnt] [nor type] [opt type] " << std::endl;
 		std::cout << "	nor type: 0-min_max  1-square normalization" << std::endl;

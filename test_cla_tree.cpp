@@ -4,7 +4,7 @@
 int main(int argv, char* argc[]) {
     std::cout << "Testing Classification Tree" << std::endl;
     std::cout << "Loading the tree" << std::endl;
-    
+    //  ./Bin/cla_tree DATA/ionosphere 100 1000 0 0-33:6
     if (argv < 5) {
         std::cout << "Usage: ./cla_tree [training_file] [max_depth] [max_node_path] [multi thread or not]" << std::endl;
         return 0;
