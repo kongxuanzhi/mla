@@ -3,80 +3,6 @@
 namespace mla {
 namespace tree {
 
-void* selectFeatureFunc(void* param) {    
-    mla::basic::ThreadParam<float> *p = (mla::basic::ThreadParam<float> *)param;
-    std::map<int32_t, float> tempFeatureValue;
-    std::vector<int32_t> vTempCurrentIndex(p->m_vCurrentIndex.begin(), p->m_vCurrentIndex.end());
-    
-    for (int32_t i = 0; i < p->m_vCurrentIndex.size(); i ++) {
-        tempFeatureValue[p->m_vCurrentIndex[i]] = p->m_oTree->getTrainingX()[p->m_vCurrentIndex[i]][p->m_nFeatureIndex];
-    }
-
-    p->m_oTree->sortIndexVec(vTempCurrentIndex, tempFeatureValue);
-    
-    float totValue = 0.0;
-    float totSqaValue = 0.0;
-    
-    for (int32_t j = 0; j < (int32_t)vTempCurrentIndex.size(); j ++) {
-        float tmpVal = p->m_oTree->getTrainingY()[vTempCurrentIndex[j]];
-        totValue += tmpVal;
-        totSqaValue += tmpVal * tmpVal;
-    }
-
-    float fOptFeatureVal = 0.0;    
-    float curTotVal = 0.0;
-    float curTotSqaVal = 0.0;
-    float minDevia = INT_MAX;
-    for (int32_t j = 0; j < (int32_t)vTempCurrentIndex.size(); ++ j) {
-        float tmpVal = p->m_oTree->getTrainingY()[vTempCurrentIndex[j]];
-        curTotVal += tmpVal;
-        curTotSqaVal += tmpVal * tmpVal;
-        float curDevia = totSqaValue - curTotVal * curTotVal / (j + 1);
-        if (j + 1 != (int32_t)vTempCurrentIndex.size()) {
-            curDevia -= (totValue - curTotVal) * (totValue - curTotVal) / (vTempCurrentIndex.size() - j - 1);
-        }
-        if (curDevia < minDevia) {
-            minDevia = curDevia;
-            fOptFeatureVal = tempFeatureValue[vTempCurrentIndex[j]];
-        }
-    }
-    char ret[64];
-    sprintf(ret, "%f+%f", fOptFeatureVal, minDevia);
-    return (void*)ret;
-}    
-
-void RegressionTree::optSplitPosMultiThread(int &nOptFeatureIndex,
-            float &fOptFeatureVal,
-            std::vector<int32_t> &vCurrentIndex,
-            std::vector<int32_t> &vFeatureIndex) {
-
-    float minDevia = INT_MAX;
-    int featureCnt = vFeatureIndex.size();
-    std::vector<pthread_t> vThreadIds(featureCnt);
-    for (int32_t i = 0; i < featureCnt; ++ i) {
-        mla::basic::ThreadParam<float> *param = new mla::basic::ThreadParam<float>(this, vCurrentIndex, vFeatureIndex[i]);
-        pthread_create(&vThreadIds[i], NULL, selectFeatureFunc, (void*)param);
-    }
-
-    std::vector<char*> vFeatureValue(featureCnt);
-    for (int32_t i = 0; i < featureCnt; ++ i) {
-
-        pthread_join(vThreadIds[i], (void**)&vFeatureValue[i]);
-
-        char* optValue =  strtok(vFeatureValue[i], "+");
-        char* devia    = strtok(NULL, "+");
-        
-        float fOptValue = atof(optValue);
-        float fDevia = atof(devia);
-        
-        if (fDevia < minDevia) {
-            minDevia = fDevia;
-            nOptFeatureIndex = vFeatureIndex[i];
-            fOptFeatureVal = fOptValue;
-        }
-    }
-}
-
 void RegressionTree::optSplitPos(int &nOptFeatureIndex,
             float &fOptFeatureVal,
             std::vector<int32_t> &vCurrentIndex,
@@ -93,9 +19,9 @@ void RegressionTree::optSplitPos(int &nOptFeatureIndex,
             int32_t t = rand() % vFeatureIndex.size();
             std::swap(vFeatureIndex[i], vFeatureIndex[t]);
         }
-        vTempFeatureIndex.assign(vFeatureIndex.begin(),    vFeatureIndex.begin() + getRandFeatureCnt());
+        vTempFeatureIndex.assign(vFeatureIndex.begin(), vFeatureIndex.begin() + getRandFeatureCnt());
     } else {
-        vTempFeatureIndex.assign(vFeatureIndex.begin(),    vFeatureIndex.end());    
+        vTempFeatureIndex.assign(vFeatureIndex.begin(), vFeatureIndex.end());    
     }
         
     std::cout << getRandFeatureCnt() << " " << std::endl;
@@ -121,7 +47,6 @@ void RegressionTree::optSplitPos(int &nOptFeatureIndex,
         float curTotSqaVal = 0.0;
         float minDeviaTemp = INT_MAX, featureVal = 0.0;
         for (int32_t j = 0; j < (int32_t)vTempCurrentIndex.size(); ++ j) {
-            
             float tmpVal = getTrainingY()[vTempCurrentIndex[j]];
             curTotVal += tmpVal;
             curTotSqaVal += tmpVal * tmpVal;

@@ -2,7 +2,6 @@
 #define __BASETREE_H__
 
 #include "Util.h"
-#include "pthread.h"
 
 namespace mla {
 namespace basic {
@@ -39,7 +38,6 @@ private:
     int32_t m_nMaxDepth;							//最大深度 用于剪枝
     int32_t m_nMinSampleCnt;						//节点最少的样本数目 用于剪枝
     int32_t m_nLabelCnt;							//几分类问题
-    bool    m_bMultiThreadOn;						//支持多线程
     bool    m_bEnsemble;							//是否使用全体样本
     int32_t m_nRandFeatureCnt;						//随机特征数
     std::vector<std::vector<float> > m_vTrainingX;	//训练样本
@@ -53,7 +51,6 @@ public:
     int32_t &getMinSampleCnt();
     int32_t &getRandFeatureCnt();
     int32_t &getLabelCnt();
-    bool &getMultiThreadOn();
     bool &getEnsemble();
     
     struct Node<T>* &getTreeRootNode();
@@ -62,12 +59,10 @@ public:
     
     Tree(int32_t maxNodeCnt, 
             int32_t maxDepth, 
-            bool multiThreadOn,
             int32_t labelCnt,    
             bool ensemble) : 
         m_nMaxNodeCnt(maxNodeCnt), 
         m_nMaxDepth(maxDepth), 
-        m_bMultiThreadOn(multiThreadOn),
         m_nLabelCnt(labelCnt),
         m_bEnsemble(ensemble) {
     }
@@ -79,11 +74,6 @@ public:
                     std::vector<int32_t> &vCurrentIndex,
                     std::vector<int32_t> &vFeatureIndex) {
     }    
-    //多线程对每个属性进行测试，汇总结果，比较选择最优的一个
-    virtual void optSplitPosMultiThread(int &nOptFeatureIndex,
-            float &nOptFeatureVal,
-            std::vector<int32_t> &vCurrentIndex,
-            std::vector<int32_t> &vFeatureIndex) {}
 
 	//拆分数据
     virtual void splitData(Node<T>* &node,
@@ -93,7 +83,7 @@ public:
            std::vector<int32_t> &vLeftIndex,
         std::vector<int32_t> &vRightIndex) {
     }
-    virtual T predict(const std::vector<float> &testFeatureX) {}
+	virtual T predict(const std::vector<float> &testFeatureX) { return 0.0; }
     void sortIndexVec(std::vector<int32_t> &vCurrentIndex, const std::map<int32_t, float>& vFeatureValue);
     //构造树
 	void buildTree(struct Node<T>* &oTreeNode,
@@ -150,11 +140,6 @@ int32_t& Tree<T>::getMinSampleCnt() {
 template <class T>
 int32_t& Tree<T>::getLabelCnt() {
     return m_nLabelCnt;
-}
-
-template <class T>
-bool& Tree<T>::getMultiThreadOn() {
-    return m_bMultiThreadOn;
 }
 
 template <class T>
@@ -274,17 +259,10 @@ void Tree<T>::buildTree(struct Node<T>* &oTreeNode,
         int32_t nOptFeatureIndex;
         float   fOptFeatureVal;
 		//多线程查找最优分类属性和分类点
-        if (this->m_bMultiThreadOn) {
-            optSplitPosMultiThread(nOptFeatureIndex, 
-                        fOptFeatureVal, 
-                        vTmpCurrentIndex,
-                        vTmpFeatureIndex);
-        } else {
-            optSplitPos(nOptFeatureIndex, 
-                    fOptFeatureVal, 
-                    vTmpCurrentIndex,
-                    vTmpFeatureIndex);    
-        }
+        optSplitPos(nOptFeatureIndex, 
+                fOptFeatureVal, 
+                vTmpCurrentIndex,
+                vTmpFeatureIndex);    
 		//拆分数据
         std::cout << nOptFeatureIndex << " : " << fOptFeatureVal << std::endl;    
         std::vector<int32_t> vLeftIndex, vRightIndex;
@@ -321,23 +299,6 @@ void Tree<T>::buildTree(struct Node<T>* &oTreeNode,
         }
     }
 }
-
-template <class T>
-class ThreadParam {
-public:
-    Tree<T>* m_oTree;
-    std::vector<int32_t> m_vCurrentIndex;
-    int32_t m_nFeatureIndex;
-
-    ThreadParam() {}
-    ThreadParam(Tree<T>* tree,
-            std::vector<int32_t> vCurrentIndex, 
-            int nFeatureIndex) {
-        m_oTree = tree;
-        m_vCurrentIndex = vCurrentIndex;
-        m_nFeatureIndex = nFeatureIndex;
-    }
-};
 }
 }
 #endif
